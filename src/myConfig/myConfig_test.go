@@ -10,6 +10,8 @@ type TestConfig struct {
 	DBPassword   string   `yaml:"DB-password"`
 	BuildVersion string   `yaml:"build-version"`
 	AllowedIps   []string `yaml:"allowed-ips"`
+	AllowedIDs   []int    `yaml:"allowed-ids"`
+	SpecialNr    int      `yaml:"special-nr"`
 }
 
 func Test_Init_With_Nil_Pointer(t *testing.T) {

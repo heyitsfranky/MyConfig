@@ -49,30 +49,8 @@ func read(configPath string, obj interface{}) error {
 		fieldName := field.Tag.Get("yaml")
 		if value, exists := tempConfig[fieldName]; exists {
 			fieldElem := reflect.ValueOf(obj).Elem().FieldByName(field.Name)
-			configFieldType := reflect.TypeOf(value)
-			switch configFieldType.Kind() {
-			case reflect.String:
-				if stringValue, ok := value.(string); ok {
-					fieldElem.SetString(stringValue)
-				} else {
-					return fmt.Errorf("expected a string for '%s', got '%v'", field.Name, value)
-				}
-			case reflect.Slice:
-				slice := reflect.MakeSlice(configFieldType, 0, 0)
-				if valueSlice, ok := value.([]interface{}); ok {
-					for _, elem := range valueSlice {
-						if elemString, ok := elem.(string); ok {
-							slice = reflect.Append(slice, reflect.ValueOf(elemString))
-						} else {
-							return fmt.Errorf("expected a string element for '%s', got '%v'", field.Name, elem)
-						}
-					}
-					fieldElem.Set(slice)
-				} else {
-					return fmt.Errorf("expected a slice for '%s', got '%v'", field.Name, value)
-				}
-			default:
-				return fmt.Errorf("unsupported field type for '%s'", field.Name)
+			if err := convertFieldValue(fieldElem, value); err != nil {
+				return err
 			}
 		} else {
 			return fmt.Errorf("missing key '%s' in '%s'", fieldName, configPath)
@@ -81,10 +59,43 @@ func read(configPath string, obj interface{}) error {
 	return nil
 }
 
+// convertFieldValue converts the value to the desired field type and sets it in the field.
+func convertFieldValue(fieldElem reflect.Value, value interface{}) error {
+	switch fieldElem.Kind() {
+	case reflect.String:
+		if stringValue, ok := value.(string); ok {
+			fieldElem.SetString(stringValue)
+		} else {
+			return fmt.Errorf("expected a string, got '%v'", value)
+		}
+	case reflect.Int:
+		if intValue, ok := value.(int); ok {
+			fieldElem.SetInt(int64(intValue))
+		} else {
+			return fmt.Errorf("expected an int, got '%v'", value)
+		}
+	case reflect.Slice:
+		slice := reflect.MakeSlice(fieldElem.Type(), 0, 0)
+		if valueSlice, ok := value.([]interface{}); ok {
+			for _, elem := range valueSlice {
+				convertedElem, err := convertToType(elem, fieldElem.Type().Elem())
+				if err != nil {
+					return err
+				}
+				slice = reflect.Append(slice, convertedElem)
+			}
+			fieldElem.Set(slice)
+		} else {
+			return fmt.Errorf("expected a slice, got '%v'", value)
+		}
+	default:
+		return fmt.Errorf("unsupported field type")
+	}
+	return nil
+}
+
 func convertToType(value interface{}, targetType reflect.Type) (reflect.Value, error) {
-	// Convert the element to the desired type
 	valueOf := reflect.ValueOf(value)
 	convertedValue := valueOf.Convert(targetType)
-
 	return convertedValue, nil
 }
