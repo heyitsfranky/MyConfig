@@ -1,6 +1,8 @@
 # MyConfig
 
-**MyConfig** provides functionality for initializing and reading configuration settings from YAML files. It is designed to allow the initialization of nil pointers to structs efficiently and to also guarantee all parameters of a given struct exist in the referenced configuration file.
+**MyConfig** provides functionality for initializing and reading configuration settings from YAML files. It is designed to allow the initialization of nil pointers to structs efficiently and to also guarantee all parameters of a given struct exist in the referenced configuration file. 
+
+**Supported yaml types (so far):** string, string array, int, int array
 
 ## Installation
 
