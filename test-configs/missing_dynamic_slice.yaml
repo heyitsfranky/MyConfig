@@ -7,7 +7,4 @@ allowed-ids:
   - 123
   - 456
 special-nr: 777
-dynamic-array:
-  - 789
-  - hello world!
 dynamic-value: superdynamic

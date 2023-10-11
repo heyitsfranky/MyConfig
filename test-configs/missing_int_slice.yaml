@@ -3,9 +3,6 @@ build-version: "debug"
 allowed-ips:
   - !!str 127.0.0.1
   - localhost
-allowed-ids:
-  - 123
-  - 456
 special-nr: 777
 dynamic-array:
   - 789

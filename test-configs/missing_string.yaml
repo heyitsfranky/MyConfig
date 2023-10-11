@@ -1,5 +1,4 @@
 DB-password: ""
-build-version: "debug"
 allowed-ips:
   - !!str 127.0.0.1
   - localhost

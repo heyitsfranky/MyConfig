@@ -88,6 +88,11 @@ func convertFieldValue(fieldElem reflect.Value, value interface{}) error {
 		} else {
 			return fmt.Errorf("expected a slice, got '%v'", value)
 		}
+	case reflect.Interface:
+		if value != nil {
+			valueOf := reflect.ValueOf(value)
+			fieldElem.Set(valueOf)
+		}
 	default:
 		return fmt.Errorf("unsupported field type")
 	}
