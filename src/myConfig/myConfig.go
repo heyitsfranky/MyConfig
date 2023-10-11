@@ -48,16 +48,43 @@ func read(configPath string, obj interface{}) error {
 		field := objType.Field(i)
 		fieldName := field.Tag.Get("yaml")
 		if value, exists := tempConfig[fieldName]; exists {
-			configFieldType := field.Type
-			if configFieldType.Kind() == reflect.String {
-				fieldValue := reflect.ValueOf(obj).Elem().FieldByName(field.Name)
-				fieldValue.SetString(value.(string))
-			} else {
-				return fmt.Errorf("unsupported field type for '%s' in '%s'", fieldName, configPath)
+			fieldElem := reflect.ValueOf(obj).Elem().FieldByName(field.Name)
+			configFieldType := reflect.TypeOf(value)
+			switch configFieldType.Kind() {
+			case reflect.String:
+				if stringValue, ok := value.(string); ok {
+					fieldElem.SetString(stringValue)
+				} else {
+					return fmt.Errorf("expected a string for '%s', got '%v'", field.Name, value)
+				}
+			case reflect.Slice:
+				slice := reflect.MakeSlice(configFieldType, 0, 0)
+				if valueSlice, ok := value.([]interface{}); ok {
+					for _, elem := range valueSlice {
+						if elemString, ok := elem.(string); ok {
+							slice = reflect.Append(slice, reflect.ValueOf(elemString))
+						} else {
+							return fmt.Errorf("expected a string element for '%s', got '%v'", field.Name, elem)
+						}
+					}
+					fieldElem.Set(slice)
+				} else {
+					return fmt.Errorf("expected a slice for '%s', got '%v'", field.Name, value)
+				}
+			default:
+				return fmt.Errorf("unsupported field type for '%s'", field.Name)
 			}
 		} else {
 			return fmt.Errorf("missing key '%s' in '%s'", fieldName, configPath)
 		}
 	}
 	return nil
+}
+
+func convertToType(value interface{}, targetType reflect.Type) (reflect.Value, error) {
+	// Convert the element to the desired type
+	valueOf := reflect.ValueOf(value)
+	convertedValue := valueOf.Convert(targetType)
+
+	return convertedValue, nil
 }
