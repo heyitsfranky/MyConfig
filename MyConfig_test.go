@@ -1,10 +1,10 @@
-package myConfig
+package MyConfig
 
 import (
 	"testing"
 )
 
-const TEST_INIT_CONFIG_PATH = "../../config.yaml"
+const TEST_INIT_CONFIG_PATH = "config.yaml"
 
 type TestConfig struct {
 	DBPassword   string        `yaml:"DB-password"`
@@ -49,7 +49,7 @@ func Test_Keys_Missing_In_Config(t *testing.T) {
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
 			var testCfg *TestConfig
-			err := Init("../../test-configs/"+path, &testCfg)
+			err := Init("test-configs/"+path, &testCfg)
 			if err == nil {
 				t.Errorf("Expected an error for path %s, but got nothing", path)
 			}

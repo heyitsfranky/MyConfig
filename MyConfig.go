@@ -1,4 +1,4 @@
-package myConfig
+package MyConfig
 
 import (
 	"fmt"
