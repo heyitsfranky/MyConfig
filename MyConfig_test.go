@@ -22,7 +22,6 @@ func Test_Init_With_Nil_Pointer(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error, but got: %v", err)
 	}
-	//find a certain ip in allowedips
 }
 
 func Test_Init_With_Valid_Pointer(t *testing.T) {
